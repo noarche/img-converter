@@ -34,10 +34,18 @@ def ffmpeg_convert(input_path, output_path, fmt):
     if fmt == 'webp':
         cmd = [
             'ffmpeg', '-y', '-i', str(input_path),
+
             '-c:v', 'libwebp',
-            '-qscale:v', '80',
+
+            # Improved visually lossless settings
+            '-qscale:v', '90',
             '-compression_level', '6',
             '-preset', 'photo',
+            '-lossless', '0',
+            '-near_lossless', '60',
+            '-alpha_quality', '90',
+            '-metadata', 'none',
+
             str(output_path)
         ]
 
@@ -51,11 +59,17 @@ def ffmpeg_convert(input_path, output_path, fmt):
         # Try SVT-AV1 first
         cmd = [
             'ffmpeg', '-y', '-i', str(input_path),
+
             '-c:v', 'libsvtav1',
-            '-crf', '28',
+
+            # Improved visually lossless settings
+            '-crf', '22',
+            '-preset', '4',
             '-b:v', '0',
-            '-preset', '6',
+            '-pix_fmt', 'yuv420p',
+            '-svtav1-params', 'tune=0',
             '-map_metadata', '-1',
+
             str(output_path)
         ]
 
@@ -65,9 +79,14 @@ def ffmpeg_convert(input_path, output_path, fmt):
         if code != 0:
             cmd = [
                 'ffmpeg', '-y', '-i', str(input_path),
+
                 '-c:v', 'libaom-av1',
-                '-crf', '30',
+                '-crf', '24',
                 '-b:v', '0',
+                '-cpu-used', '4',
+                '-row-mt', '1',
+                '-pix_fmt', 'yuv420p',
+
                 str(output_path)
             ]
             code, err = run_ffmpeg(cmd)
