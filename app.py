@@ -35,11 +35,11 @@ def ffmpeg_convert(input_path, output_path, fmt):
     elif fmt == 'avif':
         cmd = [
             'ffmpeg', '-y', '-i', str(input_path),
-            '-c:v', 'libaom-av1',
-            '-crf', '32',
+            '-c:v', 'libsvtav1',          # switched from libaom-av1
+            '-crf', '28',
             '-b:v', '0',
             '-pix_fmt', 'yuv420p',
-            '-cpu-used', '4',
+            '-preset', '6',               # SVT-AV1 speed/quality balance
             '-map_metadata', '-1',
             str(output_path)
         ]
@@ -155,7 +155,8 @@ def main():
 
     for img_path in tqdm(images, desc=f"{Fore.MAGENTA}Progress{Style.RESET_ALL}", unit="img"):
         try:
-            rel_path = img_path.relative_to(source_path) if source_path.is_dir() else img_path.name
+            base_path = source_path if source_path.is_dir() else source_path.parent
+            rel_path = img_path.relative_to(base_path)
         except ValueError:
             rel_path = img_path.name
 
